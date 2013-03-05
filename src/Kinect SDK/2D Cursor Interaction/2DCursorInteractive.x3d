@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE X3D PUBLIC "ISO//Web3D//DTD X3D 3.0//EN" "http://www.web3d.org/specifications/x3d-3.0.dtd">
+<X3D xmlns:xsd='http://www.w3.org/2001/XMLSchema-instance' profile='Full'
+	version='3.0' xsd:noNamespaceSchemaLocation='http://www.web3d.org/specifications/x3d-3.0.xsd'>
+	<Engine>
+		<RenderJob>
+			<WindowGroup>
+				<Window size='1024 768' />
+			</WindowGroup>
+		</RenderJob>
+	</Engine>
+
+	<Scene>
+		<IOSensor DEF='kinect' type='kinect'>
+			<field accessType='outputOnly' name='JointPositions' type='MFVec3f' />
+		</IOSensor>
+		<GradientBackground position='0 1'
+			color='0 0.329 0.706 0 0.008 0.082' />
+
+		<Foreground>
+			<ScreenTextOverlay DEF='textOverlay' text='' color='1,1,1,1'
+				bgColor='0,0,0,0' shadowColor='0,0,0,1' shadowOffset='1,-1'
+				borderColor='-1,-1,-1,0' borderOffset='4,4' pointSize='12.0'
+				horizontalAlign='RIGHT' verticalAlign='TOP' textMargin='0,0'
+				enabled='TRUE' exclusive='FALSE' />
+		</Foreground>
+		<Transform translation='-2 1 -3'>
+			<TouchSensor DEF='touch1' />
+			<Shape>
+				<Appearance>
+					<Material />
+				</Appearance>
+				<Box size="0.5 0.5 1.5" />
+			</Shape>
+		</Transform>
+		<Transform translation='2 -1 -2'>
+			<TouchSensor DEF='touch2' />
+			<Shape>
+				<Appearance>
+					<Material />
+				</Appearance>
+				<Box size="1 0.5 0.5" />
+			</Shape>
+		</Transform>
+
+
+		<Transform translation='-2.5 0 3'>
+			<Transform DEF='transform'>
+				<UserBody DEF='userbody'>
+					<Transform>
+						<Shape>
+							<Appearance>
+								<Material diffuseColor='1 0 0' />
+							</Appearance>
+							<Sphere radius='0.5' />
+						</Shape>
+					</Transform>
+				</UserBody>
+			</Transform>
+		</Transform>
+		<Script DEF='TouchDebugOutput' url="TouchDebugOutput.js">
+			<field accessType='inputOnly' name='touch1' type='SFBool' />
+			<field accessType='inputOnly' name='touch2' type='SFBool' />
+			<field accessType='inputOnly' name='ovtouch1' type='SFBool' />
+			<field accessType='inputOnly' name='ovtouch2' type='SFBool' />
+			<field accessType='inputOnly' name='buttonPress' type='SFBool' />
+			<field accessType='initializeOnly' name='textNode' type='SFNode'>
+				<ScreenTextOverlay USE='textOverlay' />
+			</field>
+		</Script>
+
+		<Script DEF='cursor_script' url='RightHand3DCursor.js'>
+			<field name='skeleton_changed' accessType='inputOnly' type='MFVec3f' />
+			<field name="new_pos" accessType="outputOnly" type="SFVec3f" />
+			<field accessType='outputOnly' name='cursor' type='SFVec3f' />
+		</Script>
+
+		<ROUTE fromNode='touch1' fromField='isActive' toNode='TouchDebugOutput'
+			toField='touch1' />
+		<ROUTE fromNode='touch2' fromField='isActive' toNode='TouchDebugOutput'
+			toField='touch2' />
+		<ROUTE fromNode='touch2' fromField='isOver' toNode='TouchDebugOutput'
+			toField='ovtouch2' />
+		<ROUTE fromNode='touch1' fromField='isOver' toNode='TouchDebugOutput'
+			toField='ovtouch1' />
+		<ROUTE fromNode='kinect' fromField='JointPositions' toNode='cursor_script'
+			toField='skeleton_changed' />
+		<ROUTE fromNode='cursor_script' fromField='new_pos' toNode='transform'
+			toField='set_translation' />
+			
+			
+	
+		<!-- add button -->
+		<Transform translation='-2.5 -6 3'>
+			<TouchSensor DEF='ts_add' />
+			<Shape>
+				<Appearance>
+					<Material diffuseColor='1,1,1' />
+				</Appearance>
+				<Text string='add entry'>
+					<FontStyle family='SANS' />
+				</Text>
+			</Shape>
+		</Transform>
+		
+		<!-- delete button -->
+		<Transform translation='-2.5 6 3'>
+			<TouchSensor DEF='ts_delete' />
+			<Shape>
+				<Appearance>
+					<Material diffuseColor='1,1,1' />
+				</Appearance>
+				<Text string='delete entry'>
+					<FontStyle family='SANS' />
+				</Text>
+			</Shape>
+		</Transform>
+		
+		
+		
+		<!-- a proto containing the shape and the chasers -->
+		<!-- thus we only have to create one dynamic node in the script -->
+		<ProtoDeclare name='OrbitBox'>
+			<ProtoInterface>
+				<field name='set_orbit' type='SFFloat' accessType='inputOutput' value='5' />
+				<field name='initial_angle' type='SFRotation' accessType='initializeOnly' value='0 0 1 0' />
+				<field name='set_angle' type='SFRotation' accessType='inputOutput' value='0 0 1 0' />
+				<field name='diffuseColor' type='SFColor' accessType='inputOutput' value='1,0.5,0' />
+			</ProtoInterface>
+			<ProtoBody>
+				
+				<Transform DEF='root_trans'>
+
+					<Transform DEF='orbit_trans' translation='5 0 0'>
+						<IS>
+                    		<connect nodeField='translation' protoField='set_orbit'/>
+                  		</IS>
+						<Shape>
+							<Appearance DEF='app_font'>
+								<Material>
+									<IS>
+                    					<connect nodeField='diffuseColor' protoField='diffuseColor'/>
+                  					</IS>
+								</Material>
+							</Appearance>
+							<Sphere />
+						</Shape>
+					</Transform>
+					
+				</Transform>
+				
+				<OrientationChaser DEF='oc' duration='2'>
+					<IS>
+                    	<connect nodeField='initialDestination' protoField='initial_angle'/>
+                    	<connect nodeField='set_destination' protoField='set_angle'/>
+                  	</IS>
+                </OrientationChaser>
+				<ROUTE fromNode='oc' fromField='value_changed' toNode='root_trans' toField='set_rotation'/>
+				
+			</ProtoBody>
+		</ProtoDeclare>
+		
+		
+		
+		<!-- we will put our created objects in this node -->
+		<Group DEF='dynamic_group' />
+		
+		<Script DEF='script' directOutput='true' >
+			<field name='add_box' type='SFTime' accessType='inputOnly' />
+			<field name='delete_box' type='SFTime' accessType='inputOnly' />
+
+			<![CDATA[
+			  ecmascript:
+
+				// get group node in scene
+				var dynamic_group = Browser.currentScene.getNamedNode('dynamic_group');
+				
+				function initialize()
+				{
+					// create 10 boxes
+					for (i=0; i<10; i++)
+					{
+						add_box();
+					}
+				}
+				
+				function add_box()
+				{	
+					// create a new orbit box proto
+					var orbitbox = Browser.currentScene.createNode("OrbitBox");
+					//orbitbox.initial_angle = ((2*Math.PI) / num_boxes) * i;
+					orbitbox.diffuseColor = new SFColor(Math.random(), Math.random(), 0);
+					
+					// until here the created object is not in the scene yet
+					// now add it to the scene
+					dynamic_group.children[dynamic_group.children.length] = orbitbox;
+					
+					rearrange_boxes();
+				}
+				
+				function delete_box()
+				{
+					// delete last box
+					Browser.println(dynamic_group.children.length);
+					dynamic_group.removeChildren = new MFNode(dynamic_group.children[dynamic_group.children.length-1]);
+					
+					rearrange_boxes();
+				}
+				
+				function rearrange_boxes()
+				{
+					// rearrange existing boxes
+					num_boxes = dynamic_group.children.length;
+					
+					if (num_boxes > 0)
+					{
+						for (i=0; i<num_boxes; i++)
+						{
+							angle = ((2*Math.PI) / num_boxes) * i;
+							dynamic_group.children[i].set_angle = new SFRotation(0,0,1, angle);
+							Browser.println(angle);
+						}
+					}
+				}
+				
+			]]>
+  		</Script>
+  		
+  		<ROUTE fromNode='ts_add' fromField='isOver' toNode='script' toField='add_box'/>
+  		<ROUTE fromNode='ts_delete' fromField='isOver' toNode='script' toField='delete_box'/>
+  					
+			
+			
+			
+			
+			
+	</Scene>
+</X3D>

@@ -14,20 +14,29 @@ Nodeskeleton_+_Cursor.x3d
 Nodeskeleton.js
 * Renders a Skeleton as used in the Kinect SDK
 * Used in
-** Nodeskeleton_+_Cursor.x3d
+ ** Nodeskeleton_+_Cursor.x3d
 
 RightHand3DCursor.js
 * Uses JointPositions and delivers a single SFVec3f for translationspurposes
 * Used in
-** Nodeskeleton_+_Cursor.x3d
-** 2DCursor.x3d with slight adjusments
+ ** Nodeskeleton_+_Cursor.x3d
+ ** 2DCursor.x3d with slight adjusments
+ ** 2DCursorInteractive.x3d
 
 2DCursor.x3d
 * Creates a 2D-Cursor controlled via kinect to interact with the sensors in the scene (based on ir_userbody.wrl from IR-Tutorials)
 
-TouchDebugOutput
+TouchDebugOutput.js
 * Prints the state of a sensor, non generic
 * Used in
-** 2DCursor.x3d
+ ** 2DCursor.x3d
+ ** 2DCursorInteractive.x3d
+
+2DCursorInteractive.x3d
+* Previous shown 2D-Cursor plus interactive adding and deleting rotating Objects (see dynamic_box_04.x3d in IR-Tutorials)
+
+Cave-head-flystick.x3d
+* Wraps the scene and configures the VR-Cluster (©Richard Müller, IWI Leipzig)
+
 
 Next: Interaction with animated context menu
