@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE X3D PUBLIC "ISO//Web3D//DTD X3D 3.0//EN" "http://www.web3d.org/specifications/x3d-3.0.dtd">
+<X3D xmlns:xsd='http://www.w3.org/2001/XMLSchema-instance' profile='Full'
+	version='3.0' xsd:noNamespaceSchemaLocation='http://www.web3d.org/specifications/x3d-3.0.xsd'>
+	<Engine>
+		<RenderJob>
+			<WindowGroup>
+				<Window size='1024 768' />
+			</WindowGroup>
+		</RenderJob>
+	</Engine>
+
+	<Scene>
+		<IOSensor DEF='kinect' type='NI' mirror='true' >
+			<field accessType='outputOnly' name='HandPosition' type='SFVec3f' />
+		</IOSensor>
+		
+    <NavigationInfo>
+      <SteerNavigator DEF='navigator' inputRange='-500 500' rotationSpeed='-0.1 -0.1 -0.1' translationSpeed='10 10 10'/>
+    </NavigationInfo>
+
+		<Transform translation='-2.5 0 0'>
+			<Transform DEF='cursor'>
+				<UserBody DEF='userbody'>
+					<Transform>
+						<Shape>
+							<Appearance>
+								<Material diffuseColor='1 0 0' />
+							</Appearance>
+							<Sphere radius='0.1' />
+						</Shape>
+					</Transform>
+				</UserBody>
+			</Transform>
+		</Transform>
+         <Transform DEF='notice' scale='0.4 0.4 0.4' translation='-5 0 0'>
+            <Text string="Text fuer den 3D-Eindruck..." />
+        </Transform>
+
+		<Script DEF='cursor_script' url='RightHand3DCursor.js'>
+			<field name='HandPosition_changed' accessType='inputOnly' type='SFVec3f' />
+			<field name="new_pos" accessType="outputOnly" type="SFVec3f" />	
+			<field name="x" accessType="outputOnly" type="SFFloat" />	
+			<field name="y" accessType="outputOnly" type="SFFloat" />	
+			<field name="z" accessType="outputOnly" type="SFFloat" />	
+		</Script>
+
+
+		<ROUTE fromNode='kinect' fromField='HandPosition' toNode='cursor_script'
+			toField='HandPosition_changed' />
+		<ROUTE fromNode='cursor_script' fromField='new_pos' toNode='cursor'
+			toField='set_translation' />	
+			
+			
+    <ROUTE fromNode='cursor_script' fromField='x' toNode='navigator' toField='set_xTranslation'/>
+    <ROUTE fromNode='cursor_script' fromField='z' toNode='navigator' toField='set_zTranslation'/>
+<!--     <ROUTE fromNode='cursor_script' fromField='z' toNode='navigator' toField='set_xTranslation'/>
+    <ROUTE fromNode='cursor_script' fromField='y' toNode='navigator' toField='set_zTranslation'/>	 -->		
+			
+			
+	</Scene>
+</X3D>
