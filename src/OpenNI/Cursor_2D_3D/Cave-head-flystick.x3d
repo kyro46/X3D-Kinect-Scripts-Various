@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE X3D PUBLIC "ISO//Web3D//DTD X3D 3.0//EN" "http://www.web3d.org/specifications/x3d-3.0.dtd">
+<X3D xmlns:xsd='http://www.w3.org/2001/XMLSchema-instance' profile='Full' version='3.0' xsd:noNamespaceSchemaLocation='http://www.web3d.org/specifications/x3d-3.0.xsd'>
+  <Engine DEF='engine'>
+	<!-- DTrack -->
+	<IOSensor DEF='tracking' type='ART'>
+      <field accessType='initializeOnly' name='Port' type='SFString' value='5000'/>
+      <field accessType='initializeOnly' name='MaxBodies' type='SFString' value='6'/>
+      <field accessType='initializeOnly' name='MaxFlySticks' type='SFString' value='0'/>
+      <field accessType='initializeOnly' name='Axis' type='SFString' value='1,3,-2'/>
+      <field accessType='initializeOnly' name='Scale' type='SFString' value='0.001'/>
+      <field accessType='initializeOnly' name='Center' type='SFString' value='0,1.35,0'/>
+	  <!-- flystick -->
+	  <field accessType='outputOnly' name='*Position*2*' type='SFVec3f'/>
+      <field accessType='outputOnly' name='*Orientation*2*' type='SFRotation'/>
+      <field accessType='outputOnly' name='*Matrix*2*' type='SFMatrix4f'/>
+	  <!-- head -->
+	  <field accessType='outputOnly' name='*Matrix*0*' type='SFMatrix4f'/>
+    </IOSensor>
+	<!-- flystick buttons -->
+	<IOSensor DEF='flystick' type='Serial'>
+		<field accessType='outputOnly' name='Data out' type='SFString' />
+    </IOSensor> 
+	 <!-- wall config (screens) -->
+	<RenderJob DEF='render'>
+      <WindowGroup>
+		<Window sample='4'/> 
+        <ClusterWindow size='8400 1050' fullScreen='true' servers='"ic-5" "ic-6" "ic-1" "ic-2" "ic-3" "ic-4"' hServers='6' drawCursor='true'>
+         <Viewarea upperRight='1399 1049'>
+            <ProjectionViewModifier DEF='mod_left_left' rightEye='true' surface='-3.5 -0.9 -0.55 -1.4 -0.9 -1.7 -1.4 0.9 -1.7 -3.5 0.9 -0.55' eyeSeparation='0.031'/>
+          </Viewarea>
+          <Viewarea lowerLeft='1400 0' upperRight='2799 1049'>
+            <ProjectionViewModifier DEF='mod_left_right' leftEye='true' surface='-3.5 -0.9 -0.55 -1.4 -0.9 -1.7 -1.4 0.9 -1.7 -3.5 0.9 -0.55' eyeSeparation='0.031'/>
+          </Viewarea>
+		  <Viewarea lowerLeft='2800 0' upperRight='4199 1049'>
+            <ProjectionViewModifier DEF='mod_front_left' rightEye='true' surface='-1.4 -0.9 -1.7 1.4 -0.9 -1.7 1.4 0.9 -1.7 -1.4 0.9 -1.7' eyeSeparation='0.031'/>
+          </Viewarea>
+          <Viewarea lowerLeft='4200 0' upperRight='5599 1049'>
+            <ProjectionViewModifier DEF='mod_front_right' leftEye='true' surface='-1.4 -0.9 -1.7 1.4 -0.9 -1.7 1.4 0.9 -1.7 -1.4 0.9 -1.7' eyeSeparation='0.031'/>
+          </Viewarea>
+		  <Viewarea lowerLeft='5600 0' upperRight='6999 1049'>
+            <ProjectionViewModifier DEF='mod_right_left' rightEye='true' surface='1.4 -0.9 -1.7 3.5 -0.9 -0.55 3.5 0.9 -0.55 1.4 0.9 -1.7' eyeSeparation='0.031'/>
+          </Viewarea>
+          <Viewarea lowerLeft='7000 0' upperRight='8399 1049'>
+            <ProjectionViewModifier DEF='mod_right_right' leftEye='true' surface='1.4 -0.9 -1.7 3.5 -0.9 -0.55 3.5 0.9 -0.55 1.4 0.9 -1.7' eyeSeparation='0.031'/>
+          </Viewarea>
+        </ClusterWindow>
+      </WindowGroup>
+    </RenderJob>
+  </Engine>
+ 
+  <Scene DEF='scene'>
+	<!-- head tracking -->
+	<ROUTE fromNode='engine::tracking' fromField='*Matrix*0*' toNode='engine::mod_front_left' toField='set_eyeTransform'/>
+	<ROUTE fromNode='engine::tracking' fromField='*Matrix*0*' toNode='engine::mod_front_right' toField='set_eyeTransform'/>
+	<ROUTE fromNode='engine::tracking' fromField='*Matrix*0*' toNode='engine::mod_right_left' toField='set_eyeTransform'/>
+	<ROUTE fromNode='engine::tracking' fromField='*Matrix*0*' toNode='engine::mod_right_right' toField='set_eyeTransform'/>
+	<ROUTE fromNode='engine::tracking' fromField='*Matrix*0*' toNode='engine::mod_left_left' toField='set_eyeTransform'/>
+	<ROUTE fromNode='engine::tracking' fromField='*Matrix*0*' toNode='engine::mod_left_right' toField='set_eyeTransform'/>
+		
+	<!-- flystick tracking -->
+	<NavigationInfo type='any'>
+      <PointingNavigator DEF='nav' rotationSpeed='1' translationSpeed='1'/>
+    </NavigationInfo>  
+	<!-- converts string from serial input to bool -->  
+	<Script DEF='serialConverter'>
+       	<field accessType='inputOnly' name='stringValue' type='SFString'/>
+		<field accessType='outputOnly' name='boolValue' type='SFBool'/>
+		<![CDATA[javascript:
+		function stringValue(value){
+			if(boolValue){
+				boolValue = 0;
+			}else{
+				boolValue = 1;
+			}
+			//print('button pressed: ' + boolValue);
+		}
+		]]>
+    </Script>
+	<ROUTE fromNode='engine::flystick' fromField='Data out' toNode='serialConverter' toField='stringValue'/>
+	<ROUTE fromNode='serialConverter' fromField='boolValue' toNode='nav' toField='hot'/> 
+    <ROUTE fromNode='engine::tracking' fromField='*Position*2*' toNode='nav' toField='set_translation'/>  
+	<!-- <ROUTE fromNode='engine::tracking' fromField='*Orientation*2*' toNode='nav' toField='set_rotation'/>   -->  
+	<!--<ROUTE fromNode='engine::tracking' fromField='*Matrix*2*' toNode='nav' toField='set_transformation'/>   -->
+	
+
+  	<!-- cursor movement -->
+	<ROUTE fromNode='engine::tracking' fromField='*Position*2*' toNode='userBodyTrans' toField='set_translation'/> 
+    <ROUTE fromNode='engine::tracking' fromField='*Orientation*2*' toNode='userBodyTrans' toField='set_rotation'/>
+	
+	<!-- for interaction -->
+	<!-- <ROUTE fromNode='serialConverter' fromField='boolValue' toNode='userBody' toField='hot'/>   -->
+	
+	<!-- scene -->
+	<Viewpoint position='0 0 10'/>
+	<Inline url='Cursor2D_3D.x3d'/>	
+  </Scene>
+</X3D>

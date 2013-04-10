@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE X3D PUBLIC "ISO//Web3D//DTD X3D 3.0//EN" "http://www.web3d.org/specifications/x3d-3.0.dtd">
+<X3D xmlns:xsd='http://www.w3.org/2001/XMLSchema-instance' profile='Full'
+	version='3.0' xsd:noNamespaceSchemaLocation='http://www.web3d.org/specifications/x3d-3.0.xsd'>
+	<Engine>
+		<RenderJob>
+			<WindowGroup>
+				<Window size='1024 768' />
+			</WindowGroup>
+		</RenderJob>
+	</Engine>
+
+	<Scene>
+		<IOSensor DEF='kinect' type='NI' mirror='true' >
+			<field accessType='outputOnly' name='HandPosition' type='SFVec3f' />
+			<field accessType='outputOnly' name='gesture' type='SFString' />
+		</IOSensor>
+		
+		<Transform translation='-2.5 0 0'>
+			<Transform DEF='cursor'>
+				<UserBody DEF='userbody'>
+					<Transform>
+						<Shape>
+							<Appearance>
+								<Material diffuseColor='1 0 0' />
+							</Appearance>
+							<Sphere radius='0.1' />
+						</Shape>
+					</Transform>
+				</UserBody>
+			</Transform>
+		</Transform>
+         <Transform DEF='notice' scale='0.4 0.4 0.4' translation='-5 0 0'>
+            <Text string="Text fuer den 3D-Eindruck..." />
+        </Transform>
+
+		<Script DEF='cursor_script' url='RightHand2DCursor.js'>
+			<field name='HandPosition_changed' accessType='inputOnly' type='SFVec3f' />
+			<field name="new_pos" accessType="outputOnly" type="SFVec3f" />
+			<field name='get_gesture' accessType='inputOnly' type='SFString' />
+			<field name="scriptURL" accessType="outputOnly" type="SFString" />			
+		</Script>
+
+
+		<ROUTE fromNode='kinect' fromField='HandPosition' toNode='cursor_script'
+			toField='HandPosition_changed' />
+		<ROUTE fromNode='cursor_script' fromField='new_pos' toNode='cursor'
+			toField='set_translation' />
+			
+		<ROUTE fromNode='kinect' fromField='gesture' toNode='cursor_script'
+			toField='get_gesture' />			
+		<ROUTE fromNode='cursor_script' fromField='scriptURL' toNode='cursor_script'
+			toField='url' />			
+			
+	</Scene>
+</X3D>
