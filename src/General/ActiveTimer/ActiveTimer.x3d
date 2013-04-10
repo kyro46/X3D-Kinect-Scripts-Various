@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE X3D PUBLIC "ISO//Web3D//DTD X3D 3.0//EN" "http://www.web3d.org/specifications/x3d-3.0.dtd">
+<X3D xmlns:xsd='http://www.w3.org/2001/XMLSchema-instance' profile='Full'
+	version='3.0' xsd:noNamespaceSchemaLocation='http://www.web3d.org/specifications/x3d-3.0.xsd'>
+	<Engine>
+		<RenderJob>
+			<WindowGroup>
+				<Window size='1024 768' />
+			</WindowGroup>
+		</RenderJob>
+	</Engine>
+
+	<Scene>
+		<Transform translation='0 0 0'>
+			<TouchSensor DEF='touch' />
+			<Shape>
+				<Appearance>
+					<Material DEF='boxfarbe' />
+				</Appearance>
+				<Box size="1 1 1" />
+			</Shape>
+		</Transform>
+		<Transform translation='-3 0 0'>
+			<Shape>
+				<Appearance>
+					<Material DEF='targetcolor' />
+				</Appearance>
+				<Box size="1 1 1" />
+			</Shape>
+		</Transform>
+
+		<Delayer DEF='delayer' minDelay='1' maxDelay='1' />
+
+		<TimeSensor DEF='AnimationDuration' cycleInterval='1' />
+		<ColorInterpolator DEF='ColorChanger' key='0 0.5 1'
+			keyValue='0 0 1 0 1 0 1 0 0' />
+
+		<Script DEF='ColorScript' url='ColorScript.js'>
+			<field name='start' accessType='inputOnly' type='SFBool' />
+			<field name='color' accessType='outputOnly' type='SFColor' />
+		</Script>
+
+		<Script DEF='TrueDelayScript' url='TrueDelayScript.js'>
+			<field name='start' accessType='inputOnly' type='SFBool' />
+			<field name='out' accessType='outputOnly' type='SFBool' />
+			<field name='out_false' accessType='outputOnly' type='SFBool' />
+		</Script>	
+		
+		<Script DEF='BoolToTime' url='BoolToTime.js'>
+			<field name='start' accessType='inputOnly' type='SFBool' />
+			<field name='out' accessType='outputOnly' type='SFTime' />
+			<field name='out_false' accessType='outputOnly' type='SFTime' />
+		</Script>			
+		
+		<ROUTE fromNode='touch' fromField='isOver' toNode='TrueDelayScript'
+			toField='start' />
+		<ROUTE fromNode='TrueDelayScript' fromField='out' toNode='delayer'
+			toField='enabled' />			
+		<ROUTE fromNode='TrueDelayScript' fromField='out' toNode='delayer'
+			toField='in' />			
+		<ROUTE fromNode='TrueDelayScript' fromField='out_false' toNode='ColorScript'
+			toField='start' />	
+		<ROUTE fromNode='TrueDelayScript' fromField='out_false' toNode='delayer'
+			toField='enabled' />							
+			
+		<ROUTE fromNode='delayer' fromField='out' toNode='ColorScript'
+			toField='start' />			
+		<ROUTE fromNode='ColorScript' fromField='color' toNode='targetcolor'
+			toField='set_diffuseColor' />
+			
+		<ROUTE fromNode='delayer' fromField='enabled' toNode='BoolToTime' toField='start' />	
+		<ROUTE fromNode='BoolToTime' fromField='out' toNode='AnimationDuration' toField='set_startTime' />	
+		<ROUTE fromNode='BoolToTime' fromField='out_false' toNode='AnimationDuration' toField='set_stopTime' />	
+
+		<ROUTE fromNode='AnimationDuration' fromField='fraction_changed' 
+			toNode='ColorChanger' toField='set_fraction'  />
+		<ROUTE fromNode='ColorChanger' fromField='value_changed' 
+			toNode='boxfarbe' toField='diffuseColor'  />
+
+		
+			
+
+
+	</Scene>
+</X3D>
