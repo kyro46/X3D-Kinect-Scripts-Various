@@ -5,9 +5,10 @@ function initialize() {
 
 function start(value, t) {
 	if (value == true) {
-		out = true
-		} else {
-		out_false = false }
+		out = true;
+	} else {
+		out_false = false; 
+	}
 }
 
 function shutdown() {

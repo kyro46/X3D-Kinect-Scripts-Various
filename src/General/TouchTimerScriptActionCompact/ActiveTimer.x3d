@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE X3D PUBLIC "ISO//Web3D//DTD X3D 3.0//EN" "http://www.web3d.org/specifications/x3d-3.0.dtd">
+<X3D xmlns:xsd='http://www.w3.org/2002/XMLSchema-instance' profile='Full'
+	version='3.0' xsd:noNamespaceSchemaLocation='http://www.web3d.org/specifications/x3d-3.0.xsd'>
+	<Engine>
+		<RenderJob>
+			<WindowGroup>
+				<Window size='1024 768' />
+			</WindowGroup>
+		</RenderJob>
+	</Engine>
+
+	<Scene>
+		<Transform translation='-3 0 0'>
+			<Shape>
+				<Appearance>
+					<Material DEF='targetcolor' />
+				</Appearance>
+				<Box size="1 1 1" />
+			</Shape>
+		</Transform>
+	
+		<!-- HUD-Schaltkachel 1 -->
+		<Transform translation='0 0 0'>
+			<TouchSensor DEF='HUDTouch001' />
+			<Shape>
+				<Appearance>
+					<Material DEF='boxfarbe001' />
+				</Appearance>
+				<Box size="1 1 1" />
+			</Shape>
+		</Transform>
+		<Delayer DEF='HUDDelayer001' minDelay='2' maxDelay='2' />
+		<TimeSensor DEF='AnimationDuration001' cycleInterval='2' />
+		<ColorInterpolator DEF='ColorChanger001' key='0 0.5 1'	keyValue='0 0 1 0 1 0 1 0 0' />
+		<Script DEF='HUDScript001' url='HUDScript001.js'>
+			<field name='startDelay' accessType='inputOnly' type='SFBool' />
+			<field name='out_delay' accessType='outputOnly' type='SFBool' />
+			<field name='out_delay_false' accessType='outputOnly' type='SFBool' />
+			<field name='startColor' accessType='inputOnly' type='SFBool' />
+			<field name='color' accessType='outputOnly' type='SFColor' />
+			<field name='startBool' accessType='inputOnly' type='SFBool' />
+			<field name='out_Bool' accessType='outputOnly' type='SFTime' />
+			<field name='out_Bool_false' accessType='outputOnly' type='SFTime' />
+		</Script>	
+		<ROUTE fromNode='HUDTouch001' fromField='isOver' toNode='HUDScript001' toField='startDelay' />
+		<ROUTE fromNode='HUDScript001' fromField='out_delay' toNode='HUDDelayer001' toField='enabled' />			
+		<ROUTE fromNode='HUDScript001' fromField='out_delay' toNode='HUDDelayer001' toField='in' />			
+		<ROUTE fromNode='HUDScript001' fromField='out_delay_false' toNode='HUDDelayer001' toField='enabled' />							
+		<ROUTE fromNode='HUDDelayer001' fromField='enabled' toNode='HUDScript001' toField='startBool' />	
+		<ROUTE fromNode='HUDScript001' fromField='out_Bool' toNode='AnimationDuration001' toField='set_startTime' />	
+		<ROUTE fromNode='HUDScript001' fromField='out_Bool_false' toNode='AnimationDuration001' toField='set_stopTime' />	
+		<ROUTE fromNode='AnimationDuration001' fromField='fraction_changed' toNode='ColorChanger001' toField='set_fraction'  />
+		<ROUTE fromNode='ColorChanger001' fromField='value_changed' toNode='boxfarbe001' toField='diffuseColor'  />
+		
+		<!-- HUD-Aktionsskript von Schaltkachel 1 -->
+		<Script DEF='doSomething001' url='doSomething001.js'>
+			<field name='doSomething' accessType='inputOnly' type='SFBool' />
+			<field name='color' accessType='outputOnly' type='SFColor' />
+		</Script>	
+		<ROUTE fromNode='HUDScript001' fromField='out_delay_false' toNode='doSomething001' toField='doSomething' />	
+		<ROUTE fromNode='HUDDelayer001' fromField='out' toNode='doSomething001' toField='doSomething' />
+		
+		<!-- HUD-Aktionsskriptroute zum eigentlichen Zielknoten -->
+		<ROUTE fromNode='doSomething001' fromField='color' toNode='targetcolor'	toField='set_diffuseColor' />
+	
+
+	</Scene>
+</X3D>

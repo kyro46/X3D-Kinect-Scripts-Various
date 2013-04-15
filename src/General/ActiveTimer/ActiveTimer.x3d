@@ -29,9 +29,9 @@
 			</Shape>
 		</Transform>
 
-		<Delayer DEF='delayer' minDelay='1' maxDelay='1' />
+		<Delayer DEF='delayer' minDelay='2' maxDelay='2' />
 
-		<TimeSensor DEF='AnimationDuration' cycleInterval='1' />
+		<TimeSensor DEF='AnimationDuration' cycleInterval='2' />
 		<ColorInterpolator DEF='ColorChanger' key='0 0.5 1'
 			keyValue='0 0 1 0 1 0 1 0 0' />
 
@@ -52,19 +52,13 @@
 			<field name='out_false' accessType='outputOnly' type='SFTime' />
 		</Script>			
 		
-		<ROUTE fromNode='touch' fromField='isOver' toNode='TrueDelayScript'
-			toField='start' />
-		<ROUTE fromNode='TrueDelayScript' fromField='out' toNode='delayer'
-			toField='enabled' />			
-		<ROUTE fromNode='TrueDelayScript' fromField='out' toNode='delayer'
-			toField='in' />			
-		<ROUTE fromNode='TrueDelayScript' fromField='out_false' toNode='ColorScript'
-			toField='start' />	
-		<ROUTE fromNode='TrueDelayScript' fromField='out_false' toNode='delayer'
-			toField='enabled' />							
+		<ROUTE fromNode='touch' fromField='isOver' toNode='TrueDelayScript' toField='start' />
+		<ROUTE fromNode='TrueDelayScript' fromField='out' toNode='delayer' toField='enabled' />			
+		<ROUTE fromNode='TrueDelayScript' fromField='out' toNode='delayer' toField='in' />			
+		<ROUTE fromNode='TrueDelayScript' fromField='out_false' toNode='ColorScript' toField='start' />	
+		<ROUTE fromNode='TrueDelayScript' fromField='out_false' toNode='delayer' toField='enabled' />							
 			
-		<ROUTE fromNode='delayer' fromField='out' toNode='ColorScript'
-			toField='start' />			
+		<ROUTE fromNode='delayer' fromField='out' toNode='ColorScript' toField='start' />			
 		<ROUTE fromNode='ColorScript' fromField='color' toNode='targetcolor'
 			toField='set_diffuseColor' />
 			
