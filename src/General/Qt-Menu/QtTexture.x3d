@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE X3D PUBLIC "ISO//Web3D//DTD X3D 3.0//EN" "http://www.web3d.org/specifications/x3d-3.0.dtd">
+<X3D xmlns:xsd='http://www.w3.org/2001/XMLSchema-instance' profile='Full' version='3.0' xsd:noNamespaceSchemaLocation='http://www.web3d.org/specifications/x3d-3.0.xsd'>
+  <Scene DEF='scene'>
+    <Background skyColor='1 1 1'/>
+    <Transform>
+      <TouchSensor DEF='qtTouchSensor' />
+      <Shape>
+        <Appearance>
+          <UITexture DEF='qtTexture' url='"widget.ui"'>
+			<field accessType='inputOutput' name='verticalScrollBar' type='SFInt32' value='50'/>
+          </UITexture>
+        </Appearance>
+		<Rectangle2D size='0.5 2'/> 
+      </Shape>
+    </Transform>
+    <Script DEF='setColor'>
+      <field accessType='inputOnly' name='get_value' type='SFInt32'/>
+	  <![CDATA[javascript:
+    	function get_value(value)   { print(value); }
+	]]>
+    </Script>
+	
+	<ROUTE fromNode='qtTexture' fromField='verticalScrollBar' toNode='setColor' toField='get_value'/>
+    <ROUTE fromNode='qtTouchSensor' fromField='hitTexCoord_changed' toNode='qtTexture' toField='set_pointer'/>
+    <ROUTE fromNode='qtTouchSensor' fromField='isActive' toNode='qtTexture' toField='set_button1'/>
+
+  </Scene>
+</X3D>

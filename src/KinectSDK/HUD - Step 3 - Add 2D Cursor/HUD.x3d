@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE X3D PUBLIC "ISO//Web3D//DTD X3D 3.0//EN" "http://www.web3d.org/specifications/x3d-3.0.dtd">
+<X3D xmlns:xsd='http://www.w3.org/2002/XMLSchema-instance' profile='Full'
+	version='3.0' xsd:noNamespaceSchemaLocation='http://www.web3d.org/specifications/x3d-3.0.xsd'>
+	<Scene>
+	<Transform translation='-3 0 0'>
+			<Shape>
+				<Appearance>
+					<Material DEF='targetcolor' />
+				</Appearance>
+				<Box size="1 1 1" />
+			</Shape>
+		</Transform>
+		
+		<!-- Zeigegeraet mittels Kinect -->
+		<IOSensor DEF='kinect' type='kinect'>
+			<field accessType='outputOnly' name='JointPositions' type='MFVec3f' />
+		</IOSensor>	
+
+	
+		<!-- HUD-Schaltkachel 000 - wird immer angezeigt und schaltet die restlichen Kacheln an oder aus -->
+		<Transform DEF='HUD' >
+			<Transform DEF='HUDToggle' translation='0 0.61 -1'>
+			<TouchSensor DEF='HUDTouch000' description='Show or hide the HUD'/>
+			<Shape>
+				<Appearance>
+					<Material DEF='boxfarbe000' />
+				</Appearance>
+				<Box size="0.51 0.51 0.01" />
+			</Shape>
+			</Transform>
+			
+			<Transform translation='0 0 -5'>
+			<Transform DEF='curserPos' >
+				<UserBody DEF='userbody'>
+					<Transform>
+						<Shape>
+							<Appearance>
+								<Material diffuseColor='1 0 0' />
+							</Appearance>
+							<Sphere radius='0.51' />
+						</Shape>
+					</Transform>
+				</UserBody>
+			</Transform>	
+			</Transform>						
+		<Script DEF='cursor_script' url='RightHand2DCursor.js'>
+			<field name='JointPositions_changed' accessType='inputOnly' type='MFVec3f' />
+			<field name="new_pos" accessType="outputOnly" type="SFVec3f" />
+		</Script>			
+		<ROUTE fromNode='kinect' fromField='JointPositions' toNode='cursor_script' toField='JointPositions_changed' />
+		<ROUTE fromNode='cursor_script' fromField='new_pos' toNode='curserPos' toField='set_translation' />	
+	
+			
+		<Delayer DEF='HUDDelayer000' minDelay='1' maxDelay='1' />
+		<TimeSensor DEF='AnimationDuration000' cycleInterval='1' />
+		<ColorInterpolator DEF='ColorChanger000' key='0 0.5 1'	keyValue='0 0 1 0 1 0 1 0 0' />
+		<Script DEF='HUDScript000' url='HUDScript000.js'>
+			<field name='startDelay' accessType='inputOnly' type='SFBool' />
+			<field name='out_delay' accessType='outputOnly' type='SFBool' />
+			<field name='out_delay_false' accessType='outputOnly' type='SFBool' />
+			<field name='startBool' accessType='inputOnly' type='SFBool' />
+			<field name='out_Bool' accessType='outputOnly' type='SFTime' />
+			<field name='out_Bool_false' accessType='outputOnly' type='SFTime' />
+		</Script>	
+		<ROUTE fromNode='HUDTouch000' fromField='isOver' toNode='HUDScript000' toField='startDelay' />
+		<ROUTE fromNode='HUDScript000' fromField='out_delay' toNode='HUDDelayer000' toField='enabled' />			
+		<ROUTE fromNode='HUDScript000' fromField='out_delay' toNode='HUDDelayer000' toField='in' />			
+		<ROUTE fromNode='HUDScript000' fromField='out_delay_false' toNode='HUDDelayer000' toField='enabled' />							
+		<ROUTE fromNode='HUDDelayer000' fromField='enabled' toNode='HUDScript000' toField='startBool' />	
+		<ROUTE fromNode='HUDScript000' fromField='out_Bool' toNode='AnimationDuration000' toField='set_startTime' />	
+		<ROUTE fromNode='HUDScript000' fromField='out_Bool_false' toNode='AnimationDuration000' toField='set_stopTime' />	
+		<ROUTE fromNode='AnimationDuration000' fromField='fraction_changed' toNode='ColorChanger000' toField='set_fraction'  />
+		<ROUTE fromNode='ColorChanger000' fromField='value_changed' toNode='boxfarbe000' toField='diffuseColor'  />
+		
+		<!-- Der aussgehende Datentyp sowie das HUD-Aktionsskript von Schaltkachel 000 sind manuell anzupassen -->
+		<Script DEF='doSomething000' url='doSomething000.js'>
+			<field name='doSomething' accessType='inputOnly' type='SFBool' />
+			<field name='out' accessType='outputOnly' type='SFBool' />
+		</Script>	
+		<ROUTE fromNode='HUDScript000' fromField='out_delay_false' toNode='doSomething000' toField='doSomething' />	
+		<ROUTE fromNode='HUDDelayer000' fromField='out' toNode='doSomething000' toField='doSomething' />
+		
+		<!-- HUD-Aktionsskriptroute 000 zum eigentlichen Zielknoten ist manuell anzupassen -->
+		
+		<Transform DEF='HUDSensors' translation='0 0 -10' render='false'>
+		<ROUTE fromNode='doSomething000' fromField='out' toNode='HUDSensors' toField='render' />
+		<!-- ############# ENDE von Kachel 000 und den angestossenen Aktionen ############### -->	
+
+		<!-- Weitere Kacheln: Kompletten Bereich kopieren und per suchen und ersetzen 001 inkrementieren -->
+		<!-- HUD-Schaltkachel 001 -->
+		<Transform translation='0.2 0 8'>
+			<TouchSensor DEF='HUDTouch001' description='Toggle action 1' />
+			<Shape>
+				<Appearance>
+					<Material DEF='boxfarbe001' />
+				</Appearance>
+				<Box size="0.31 0.31 0.01" />
+			</Shape>
+		</Transform>
+		<Delayer DEF='HUDDelayer001' minDelay='2' maxDelay='2' />
+		<TimeSensor DEF='AnimationDuration001' cycleInterval='2' />
+		<ColorInterpolator DEF='ColorChanger001' key='0 0.5 1'	keyValue='0 0 1 0 1 0 1 0 0' />
+		<Script DEF='HUDScript001' url='HUDScript001.js'>
+			<field name='startDelay' accessType='inputOnly' type='SFBool' />
+			<field name='out_delay' accessType='outputOnly' type='SFBool' />
+			<field name='out_delay_false' accessType='outputOnly' type='SFBool' />
+			<field name='startBool' accessType='inputOnly' type='SFBool' />
+			<field name='out_Bool' accessType='outputOnly' type='SFTime' />
+			<field name='out_Bool_false' accessType='outputOnly' type='SFTime' />
+		</Script>	
+		<ROUTE fromNode='HUDTouch001' fromField='isOver' toNode='HUDScript001' toField='startDelay' />
+		<ROUTE fromNode='HUDScript001' fromField='out_delay' toNode='HUDDelayer001' toField='enabled' />			
+		<ROUTE fromNode='HUDScript001' fromField='out_delay' toNode='HUDDelayer001' toField='in' />			
+		<ROUTE fromNode='HUDScript001' fromField='out_delay_false' toNode='HUDDelayer001' toField='enabled' />							
+		<ROUTE fromNode='HUDDelayer001' fromField='enabled' toNode='HUDScript001' toField='startBool' />	
+		<ROUTE fromNode='HUDScript001' fromField='out_Bool' toNode='AnimationDuration001' toField='set_startTime' />	
+		<ROUTE fromNode='HUDScript001' fromField='out_Bool_false' toNode='AnimationDuration001' toField='set_stopTime' />	
+		<ROUTE fromNode='AnimationDuration001' fromField='fraction_changed' toNode='ColorChanger001' toField='set_fraction'  />
+		<ROUTE fromNode='ColorChanger001' fromField='value_changed' toNode='boxfarbe001' toField='diffuseColor'  />
+		
+		<!-- HUD-Aktionsskript von Schaltkachel 001 ist manuell anzupassen -->
+		<Script DEF='doSomething001' url='doSomething001.js'>
+			<field name='doSomething' accessType='inputOnly' type='SFBool' />
+			<field name='color' accessType='outputOnly' type='SFColor' />
+		</Script>	
+		<ROUTE fromNode='HUDScript001' fromField='out_delay_false' toNode='doSomething001' toField='doSomething' />	
+		<ROUTE fromNode='HUDDelayer001' fromField='out' toNode='doSomething001' toField='doSomething' />
+		
+		<!-- HUD-Aktionsskriptroute 001 zum eigentlichen Zielknoten ist manuell anzupassen -->
+		<ROUTE fromNode='doSomething001' fromField='color' toNode='targetcolor'	toField='set_diffuseColor' />
+		<!-- ############# ENDE von Kachel 001 und den angestossenen Aktionen ############### -->
+
+		<!-- HUD-Schaltkachel 002 - die Translation anpassen damit sie andere Kacheln nicht ueberlagert -->
+		<Transform translation='-0.2 0 8'>
+			<TouchSensor DEF='HUDTouch002' description='Toggle action 2' />
+			<Shape>
+				<Appearance>
+					<Material DEF='boxfarbe002' />
+				</Appearance>
+				<Box size="0.31 0.31 0.01" />
+			</Shape>
+		</Transform>
+		<Delayer DEF='HUDDelayer002' minDelay='2' maxDelay='2' />
+		<TimeSensor DEF='AnimationDuration002' cycleInterval='2' />
+		<ColorInterpolator DEF='ColorChanger002' key='0 0.5 1'	keyValue='0 0 1 0 1 0 1 0 0' />
+		<Script DEF='HUDScript002' url='HUDScript002.js'>
+			<field name='startDelay' accessType='inputOnly' type='SFBool' />
+			<field name='out_delay' accessType='outputOnly' type='SFBool' />
+			<field name='out_delay_false' accessType='outputOnly' type='SFBool' />
+			<field name='startBool' accessType='inputOnly' type='SFBool' />
+			<field name='out_Bool' accessType='outputOnly' type='SFTime' />
+			<field name='out_Bool_false' accessType='outputOnly' type='SFTime' />
+		</Script>	
+		<ROUTE fromNode='HUDTouch002' fromField='isOver' toNode='HUDScript002' toField='startDelay' />
+		<ROUTE fromNode='HUDScript002' fromField='out_delay' toNode='HUDDelayer002' toField='enabled' />			
+		<ROUTE fromNode='HUDScript002' fromField='out_delay' toNode='HUDDelayer002' toField='in' />			
+		<ROUTE fromNode='HUDScript002' fromField='out_delay_false' toNode='HUDDelayer002' toField='enabled' />							
+		<ROUTE fromNode='HUDDelayer002' fromField='enabled' toNode='HUDScript002' toField='startBool' />	
+		<ROUTE fromNode='HUDScript002' fromField='out_Bool' toNode='AnimationDuration002' toField='set_startTime' />	
+		<ROUTE fromNode='HUDScript002' fromField='out_Bool_false' toNode='AnimationDuration002' toField='set_stopTime' />	
+		<ROUTE fromNode='AnimationDuration002' fromField='fraction_changed' toNode='ColorChanger002' toField='set_fraction'  />
+		<ROUTE fromNode='ColorChanger002' fromField='value_changed' toNode='boxfarbe002' toField='diffuseColor'  />
+		
+		<!-- Der aussgehende Datentyp sowie das HUD-Aktionsskript von Schaltkachel 002 sind manuell anzupassen -->
+		<Script DEF='doSomething002' url='doSomething002.js'>
+			<field name='doSomething' accessType='inputOnly' type='SFBool' />
+			<field name='color' accessType='outputOnly' type='SFColor' />
+		</Script>	
+		<ROUTE fromNode='HUDScript002' fromField='out_delay_false' toNode='doSomething002' toField='doSomething' />	
+		<ROUTE fromNode='HUDDelayer002' fromField='out' toNode='doSomething002' toField='doSomething' />
+		
+		<!-- HUD-Aktionsskriptroute 002 zum eigentlichen Zielknoten ist manuell anzupassen -->
+		<ROUTE fromNode='doSomething002' fromField='color' toNode='targetcolor'	toField='set_diffuseColor' />
+		<!-- ############# ENDE von Kachel 002 und den angestossenen Aktionen ############### -->
+
+		</Transform>
+		</Transform>
+		<!-- ############# ENDE des HUD-Bereiches ############### -->
+		
+		<!-- HUD immer mit der aktuellen Position bewegen -->
+		<Viewpoint DEF='viewpoint' />
+		<MatrixDecomposer DEF='decom' />
+		<ROUTE fromNode='viewpoint' fromField='transformation_request' toNode='decom' toField='set_matrix'/>
+		<ROUTE fromNode='decom' fromField='translation_changed' toNode='HUD' toField='translation'/>
+		<ROUTE fromNode='decom' fromField='rotation_changed' toNode='HUD' toField='rotation'/>		
+		
+	</Scene>
+</X3D>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE X3D PUBLIC "ISO//Web3D//DTD X3D 3.0//EN" "http://www.web3d.org/specifications/x3d-3.0.dtd">
+<X3D xmlns:xsd='http://www.w3.org/2001/XMLSchema-instance' profile='Full'
+	version='3.0' xsd:noNamespaceSchemaLocation='http://www.web3d.org/specifications/x3d-3.0.xsd'>
+ <Engine DEF='engine'>
+	 <!-- wall config (screens) -->
+	<RenderJob>
+      <WindowGroup>
+		<Window sample='4'/> 
+        <ClusterWindow size='8400 1050' fullScreen='true' servers='"ic-5" "ic-6" "ic-1" "ic-2" "ic-3" "ic-4"' hServers='6' drawCursor='true'>
+         <Viewarea upperRight='1399 1049'>
+            <ProjectionViewModifier DEF='mod_left_left' rightEye='true' surface='-3.5 -0.9 -0.55 -1.4 -0.9 -1.7 -1.4 0.9 -1.7 -3.5 0.9 -0.55' eyeSeparation='0.031'/>
+          </Viewarea>
+          <Viewarea lowerLeft='1400 0' upperRight='2799 1049'>
+            <ProjectionViewModifier DEF='mod_left_right' leftEye='true' surface='-3.5 -0.9 -0.55 -1.4 -0.9 -1.7 -1.4 0.9 -1.7 -3.5 0.9 -0.55' eyeSeparation='0.031'/>
+          </Viewarea>
+		  <Viewarea lowerLeft='2800 0' upperRight='4199 1049'>
+            <ProjectionViewModifier DEF='mod_front_left' rightEye='true' surface='-1.4 -0.9 -1.7 1.4 -0.9 -1.7 1.4 0.9 -1.7 -1.4 0.9 -1.7' eyeSeparation='0.031'/>
+          </Viewarea>
+          <Viewarea lowerLeft='4200 0' upperRight='5599 1049'>
+            <ProjectionViewModifier DEF='mod_front_right' leftEye='true' surface='-1.4 -0.9 -1.7 1.4 -0.9 -1.7 1.4 0.9 -1.7 -1.4 0.9 -1.7' eyeSeparation='0.031'/>
+          </Viewarea>
+		  <Viewarea lowerLeft='5600 0' upperRight='6999 1049'>
+            <ProjectionViewModifier DEF='mod_right_left' rightEye='true' surface='1.4 -0.9 -1.7 3.5 -0.9 -0.55 3.5 0.9 -0.55 1.4 0.9 -1.7' eyeSeparation='0.031'/>
+          </Viewarea>
+          <Viewarea lowerLeft='7000 0' upperRight='8399 1049'>
+            <ProjectionViewModifier DEF='mod_right_right' leftEye='true' surface='1.4 -0.9 -1.7 3.5 -0.9 -0.55 3.5 0.9 -0.55 1.4 0.9 -1.7' eyeSeparation='0.031'/>
+          </Viewarea>
+        </ClusterWindow>
+      </WindowGroup>
+    </RenderJob>
+  </Engine>
+
+	<Scene>
+        <GradientBackground position='0 1' color='0 0.329 0.706 0 0.008 0.082'/>
+	
+	
+		<IOSensor DEF='kinect' type='kinect'>
+			<field accessType='outputOnly' name='JointPositions' type='MFVec3f' />
+		</IOSensor>
+		
+		<Transform translation='0 4 0'>
+			<TouchSensor />
+			<Shape>
+				<Appearance>
+					<Material />
+				</Appearance>
+				<Box size="1 1 1" />
+			</Shape>
+		</Transform>	
+		<Transform translation='0  0'>
+			<TouchSensor  />
+			<Shape>
+				<Appearance>
+					<Material  />
+				</Appearance>
+				<Box size="1 1 1" />
+			</Shape>
+		</Transform>
+		<Transform translation='0 2 0'>
+			<TouchSensor />
+			<Shape>
+				<Appearance>
+					<Material/>
+				</Appearance>
+				<Box size="1 1 1" />
+			</Shape>
+		</Transform>
+
+
+
+
+
+
+		
+    <NavigationInfo>
+      <SteerNavigator DEF='navigator' inputRange='-2 2' rotationSpeed='1 1 1' translationSpeed='10 10 10'/>
+    </NavigationInfo>
+
+		<Script DEF='translationScript' url='Translation.js'>
+			<field name='JointPositions_changed' accessType='inputOnly' type='MFVec3f' />
+			<field name="x" accessType="outputOnly" type="SFFloat" />	
+			<field name="y" accessType="outputOnly" type="SFFloat" />	
+			<field name="z" accessType="outputOnly" type="SFFloat" />	
+		</Script>
+
+
+    <ROUTE fromNode='translationScript' fromField='x' toNode='navigator' toField='set_xTranslation'/>
+    <ROUTE fromNode='translationScript' fromField='y' toNode='navigator' toField='set_yTranslation'/>
+    <ROUTE fromNode='translationScript' fromField='z' toNode='navigator' toField='set_zTranslation'/>
+
+	<Script DEF='orientationScript' url='Orientation.js'>
+			<field name='JointPositions_changed' accessType='inputOnly' type='MFVec3f' />
+			<field name="roll" accessType="outputOnly" type="SFFloat" />	
+			<field name="pitch" accessType="outputOnly" type="SFFloat" />	
+			<field name="yaw" accessType="outputOnly" type="SFFloat" />	
+	</Script>	
+    <ROUTE fromNode='orientationScript' fromField='roll' toNode='navigator' toField='set_zRotation'/>
+    <ROUTE fromNode='orientationScript' fromField='pitch' toNode='navigator' toField='set_xRotation'/>
+    <ROUTE fromNode='orientationScript' fromField='yaw' toNode='navigator' toField='set_yRotation'/>
+			
+	<ROUTE fromNode='kinect' fromField='JointPositions' toNode='translationScript' toField='JointPositions_changed' />
+	<ROUTE fromNode='kinect' fromField='JointPositions' toNode='orientationScript' toField='JointPositions_changed' />
+							
+	</Scene>
+</X3D>
