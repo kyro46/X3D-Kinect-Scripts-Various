@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE X3D PUBLIC "ISO//Web3D//DTD X3D 3.0//EN" "http://www.web3d.org/specifications/x3d-3.0.dtd">
+<X3D xmlns:xsd='http://www.w3.org/2001/XMLSchema-instance' profile='Full'
+	version='3.0' xsd:noNamespaceSchemaLocation='http://www.web3d.org/specifications/x3d-3.0.xsd'>
+	<Engine>
+		<RenderJob>
+			<WindowGroup>
+				<Window size='1024 768' />
+			</WindowGroup>
+		</RenderJob>
+	</Engine>
+
+	<Scene>
+		<Transform translation='0 0 0'>
+			<TouchSensor DEF='HUDTouch001' />
+			<Shape>
+				<Appearance>
+					<Material DEF='boxfarbe001' />
+				</Appearance>
+				<Box size="1 1 1" />
+			</Shape>
+		</Transform>
+		<Script DEF='ChangeScene' url='ChangeScene.js'>
+			<field name='isActive' accessType='inputOnly' type='SFBool' />
+			<field name='change_url' accessType='outputOnly' type='SFString' />
+		</Script>
+		
+
+		<Inline DEF='Inliner' url='browser.x3d'/>	
+	
+			
+		<ROUTE fromNode='HUDTouch001' fromField='isActive' toNode='ChangeScene' toField='isActive' />
+
+		<ROUTE toNode="Inliner" toField="url" fromNode="ChangeScene" fromField="change_url"/>	
+			
+	</Scene>
+</X3D>

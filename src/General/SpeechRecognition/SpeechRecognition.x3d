@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE X3D PUBLIC "ISO//Web3D//DTD X3D 3.0//EN" "http://www.web3d.org/specifications/x3d-3.0.dtd">
+<X3D xmlns:xsd='http://www.w3.org/2002/XMLSchema-instance' profile='Full'
+	version='3.0' xsd:noNamespaceSchemaLocation='http://www.web3d.org/specifications/x3d-3.0.xsd'>
+	<Scene>
+		<IOSensor DEF="Speech" type="SpeechRecognition">
+			<field accessType="outputOnly" name="Text" type="SFString" />
+		</IOSensor>
+		<Foreground>
+			<ScreenTextOverlay DEF='RecognizedText' />
+		</Foreground>
+		<ROUTE fromNode="Speech" fromField="Text" toNode="RecognizedText"
+			toField="text"></ROUTE>
+	</Scene>
+</X3D>

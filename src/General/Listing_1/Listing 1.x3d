@@ -11,7 +11,7 @@
 	</Engine>
 
 	<Scene>
-<Transform translation='1.0 2.0 0.0'>
+<Transform translation='-5.0 2.0 0.0'>
 <Shape>
 <Box />
 </Shape>
